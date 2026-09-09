@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException, status, Query
+from fastapi import FastAPI, HTTPException, status, Query,Path,Header
 from pydantic import BaseModel
 from typing import Optional
 
@@ -51,7 +51,8 @@ def get_todos(
 
 
 @app.get("/todos/{todo_id}", response_model=Todo_response)
-def get_todo(todo_id: int):
+def get_todo(todo_id: int=Path(...,gt=1),
+             limit :int = Query(10,gt=1,lt=100)):
     for todo in todos:
         if todo["id"] == todo_id:
             return todo
@@ -108,8 +109,6 @@ def delete_todo(todo_id : int):
         )
 
 # Query Parameters
-
-
 @app.get("/todos/search")
 def search_todos(title: Optional[str] = None):
     if title is None:
@@ -122,3 +121,19 @@ def search_todos(title: Optional[str] = None):
             results.append(todo)
 
     return results
+
+# Header
+@app.get("/headers")
+def get_header(user_agent:str | None=Header(default=None)):
+    return{
+        "user_agent":user_agent
+    }
+
+# Custom header -> API-Key
+@app.get("check_api_key")
+def check_api_key(api_key : str | None=Header(default=None)):
+    return {
+        "api_key" :api_key
+    }
+
+
