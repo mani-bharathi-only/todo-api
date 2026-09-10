@@ -1,9 +1,17 @@
-from fastapi import FastAPI, HTTPException, status, Query,Path,Header
+from fastapi import FastAPI, HTTPException, status, Query,Path,Header, Cookie, Response
 from pydantic import BaseModel
 from typing import Optional
+from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["https://localohost:300"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"]
+)
 
 class Todo(BaseModel):
     title: str
@@ -136,4 +144,33 @@ def check_api_key(api_key : str | None=Header(default=None)):
         "api_key" :api_key
     }
 
+# API Key
+
+API_KEY = "12345"
+@app.get("/protected/")
+def protected_route(api_key : str | None = Header(default=None)):
+    if api_key != API_KEY:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid API Key"
+        )
+    return {"Message" :"Access granted"}
+
+# Cookie (Read, Set)
+@app.get("/read-cookie")
+def read_cookie(username : str | None=Cookie(default=None)):
+    return {
+        "username": username
+    }
+
+@app.get("/set-cookie")
+def set_cookie(response:Response):
+    response.set_cookie(
+        key = "username",
+        value = "Mahi"
+    )
+
+    return {
+        "message" : " Cookie set Successfully"
+    }
 
