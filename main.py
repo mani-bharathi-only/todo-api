@@ -3,12 +3,16 @@ from fastapi import UploadFile, File
 from pydantic import BaseModel
 from typing import Optional
 from fastapi.middleware.cors import CORSMiddleware
+from routers import todos
+
 
 app = FastAPI()
 
+app.include_router(todos.router)
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://localohost:300"],
+    allow_origins=["https://localhost:3000"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"]
@@ -26,22 +30,9 @@ class Todo_response(BaseModel):
 
 
 todos = [
-    {
-        "id": 1,
-        "title": "fastapi",
-        "completed": False
-    },
-    {
-        "id": 2,
-        "title": "mysql",
-        "completed": False
-    },
-    {
-        "id": 3,
-        "title": "project",
-        "completed": True
-    }
-]
+    {"id": 1,"title": "fastapi","completed": False},
+    {"id": 2,"title": "mysql","completed": False},
+    {"id": 3,"title": "project","completed": True}]
 
 next_id =4
 
