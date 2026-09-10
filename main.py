@@ -1,4 +1,5 @@
 from fastapi import FastAPI, HTTPException, status, Query,Path,Header, Cookie, Response
+from fastapi import UploadFile, File
 from pydantic import BaseModel
 from typing import Optional
 from fastapi.middleware.cors import CORSMiddleware
@@ -12,6 +13,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"]
 )
+
 
 class Todo(BaseModel):
     title: str
@@ -174,3 +176,11 @@ def set_cookie(response:Response):
         "message" : " Cookie set Successfully"
     }
 
+# Upload Files
+@app.post("/upload")
+async def upload_file(file: UploadFile = File(...)):
+    return {
+        "message" : "Uploaded Successfully",
+        "filename": file.filename,
+        "content_type": file.content_type
+    }
