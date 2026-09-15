@@ -12,3 +12,5 @@ def get_todos(todo_id : int):
 @router.post("")
 def create_todo():
     return {"message": "Create todo"}
+
+

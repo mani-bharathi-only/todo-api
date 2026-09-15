@@ -3,12 +3,15 @@ from fastapi import UploadFile, File
 from pydantic import BaseModel
 from typing import Optional
 from fastapi.middleware.cors import CORSMiddleware
-from routers import todos
+from routers import todos as todos_router
+from fastapi import Depends
+from fastapi import APIRouter
+from database import get_db_connection
 
 
 app = FastAPI()
 
-app.include_router(todos.router)
+app.include_router(todos_router.router)
 
 app.add_middleware(
     CORSMiddleware,
@@ -175,3 +178,28 @@ async def upload_file(file: UploadFile = File(...)):
         "filename": file.filename,
         "content_type": file.content_type
     }
+
+# Depends
+
+def get_current_user():
+    return "Mahi"
+
+@app.get("/todos")
+def get_todos(user: str = Depends(get_current_user)):
+    return {
+        "user": user
+    }
+
+
+router = APIRouter(prefix="/todos")
+
+@router.get("")
+def get_todos():
+
+    db = get_db_connection()
+    cursor = db.cursor(dictionary=True)
+    cursor.execute("SELECT * FROM todos")
+    todos = cursor.fetchall()
+    cursor.close()
+    db.close()
+    return todos
